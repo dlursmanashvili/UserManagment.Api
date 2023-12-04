@@ -1,3 +1,4 @@
+using Application.Shared;
 using Infrastructure.Db; // Make sure to add this line
 using Microsoft.EntityFrameworkCore; // Make sure to add this line
 
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json");
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+DI.DependecyResolver(builder.Services);
 
 // ...
 builder.Services.AddControllers();

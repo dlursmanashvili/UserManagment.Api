@@ -34,14 +34,5 @@ public class ResponseHelper
         return Task.FromResult(result);
     }
 
-    protected Task<CommandExecutionResult> Ok()
-    {
-        var result = new CommandExecutionResult
-        {
-            Success = true,
-            Code = 200
-        };
-
-        return Task.FromResult(result);
-    }
+   
 }

@@ -17,6 +17,10 @@ public class UserRepository : BaseRepository, IUserRepository
 
     public async Task<CommandExecutionResult> Registration(User user)
     {
+        if (_ApplicationDbContext.Users.Any(x=> x.Email == user.Email))
+        {
+            return new CommandExecutionResult() { Success = false, ErrorMessage = "Choose another email, this email already exists" };
+        }
         try
         {
             user.Password = HashPassword(user.Password);
@@ -48,20 +52,26 @@ public class UserRepository : BaseRepository, IUserRepository
         if (VerifyPassword(password,user.Password))
         {
             return new CommandExecutionResult() { Success = true, };
-
         }
         else
         {
             return new CommandExecutionResult() { Success = false, ErrorMessage = "Password incorrect" };
-
         }
     }
     public async Task<CommandExecutionResult> UpdateAsyncUser(User user)
     {
+        var employe = _ApplicationDbContext.Users.FirstOrDefault(x => x.Id == user.Id);
+
+        if (employe.IsNull())
+        {
+            return new CommandExecutionResult() { Success = false, ErrorMessage = "user not found" };
+        }
         try
         {
-            user.Password = HashPassword(user.Password);
-            await Update(user);
+            employe.Password = HashPassword(user.Password);
+            employe.Email = user.Email;
+            employe.IsActive = user.IsActive;
+            await Update(employe);
             return new CommandExecutionResult() { Success = true };
         }
         catch (Exception ex)
