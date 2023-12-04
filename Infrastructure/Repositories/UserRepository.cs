@@ -4,6 +4,9 @@ using Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
 using Shared;
 using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace Infrastructure.Repositories;
 
@@ -26,11 +29,14 @@ public class UserRepository : BaseRepository, IUserRepository
             user.Password = HashPassword(user.Password);
             user.IsActive = true;
             var id = await Insert<User, int>(user);
+            var token = GenerateToken(user);
 
             return new CommandExecutionResult()
             {
                 ResultId = id.ToString(),
                 Success = true,
+                //ErrorMessage = new { Token = token }.ToString()
+
             };
         }
         catch (Exception ex)
@@ -51,7 +57,7 @@ public class UserRepository : BaseRepository, IUserRepository
         }
         if (VerifyPassword(password,user.Password))
         {
-            return new CommandExecutionResult() { Success = true, };
+            return new CommandExecutionResult() { Success = true};
         }
         else
         {
@@ -117,5 +123,22 @@ public class UserRepository : BaseRepository, IUserRepository
     {
         string enteredPasswordHashed = HashPassword(enteredPassword);
         return string.Equals(enteredPasswordHashed, hashedPassword, StringComparison.OrdinalIgnoreCase);
+    }
+    private string GenerateToken(User user)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes("bc25897AA@123*/%");
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new Claim[]
+            {
+            new Claim(ClaimTypes.Name, user.Id.ToString()),
+                // Дополнительные утверждения, если необходимо
+            }),
+            Expires = DateTime.UtcNow.AddHours(1), // Время действия токена
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
     }
 }
