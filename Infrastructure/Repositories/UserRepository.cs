@@ -12,7 +12,7 @@ namespace Infrastructure.Repositories;
 
 public class UserRepository : BaseRepository, IUserRepository
 {
-    //private readonly byte[] keyBytes = new byte[32]; // 256 bits key
+    private readonly byte[] keyBytes = new byte[32]; // 256 bits key
 
     public UserRepository(ApplicationDbContext applicationDbContext, IServiceProvider serviceProvider)
         : base(applicationDbContext, serviceProvider)
@@ -58,11 +58,11 @@ public class UserRepository : BaseRepository, IUserRepository
         }
         if (VerifyPassword(password, user.Password))
         {
-            //var token = GenerateToken(user);
+            var token = GenerateToken(user);
             return new CommandExecutionResult()
             {
                 Success = true,
-                //ErrorMessage = new { Token = token }.ToString()
+                ErrorMessage = new { Token = token }.ToString()
             };
         }
         else
@@ -131,6 +131,50 @@ public class UserRepository : BaseRepository, IUserRepository
         return string.Equals(enteredPasswordHashed, hashedPassword, StringComparison.OrdinalIgnoreCase);
     }
 
+    private string GenerateToken(User user)
+    {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+
+        var claims = new Dictionary<string, string>()
+        {
+            { "email_address", user.Email },
+        };
+
+       
+
+        var accessToken = GenerateAccessToken(user.Id, claims);
+        return accessToken;
+    }
+
+    private string GenerateAccessToken(int id, IDictionary<string, string> claims)
+    {      
+
+        var convertedClaims = claims?.Select(x => new Claim(x.Key, x.Value)).ToList() ?? new List<Claim>();
+        convertedClaims.Add(new Claim(JwtRegisteredClaimNames.Sub, id.ToString()));
+
+        var accessToken = GenerateJwt(convertedClaims);
+        var tokenResponse = new JwtSecurityTokenHandler().WriteToken(accessToken);
+     
+
+        return tokenResponse;
+    }
+
+    private JwtSecurityToken GenerateJwt(IEnumerable<Claim> claims)
+    {
+        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("B374A26A71490437AA024E4FADD5B497FDFF1A8EA6FF12F6FB65AF2720B59CCF"));
+        var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+
+        var jwtSecurityToken = new JwtSecurityToken(
+            issuer: "Issuer",
+            audience: "Audience",
+            claims: claims,
+            notBefore: DateTime.UtcNow,
+            expires: DateTime.UtcNow.AddHours(10),
+            signingCredentials: signingCredentials);
+
+        return jwtSecurityToken;
+    }
+    #region old generate ttoken code
     //private string GenerateToken(User user)
     //{
     //    var securityKey = new SymmetricSecurityKey(keyBytes);
@@ -149,16 +193,17 @@ public class UserRepository : BaseRepository, IUserRepository
     //    return tokenHandler.WriteToken(token);
     //}
 
-    //private Claim[] GetClaims(User user)
-    //{
-    //    // Implement your logic to retrieve claims from the user
-    //    // For example, return user roles as claims
-    //    return new Claim[]
-    //    {
-    //            new Claim(ClaimTypes.Name, user.Username),
-    //        // Add other claims as needed
-    //    };
-    //}
+    #endregion
+    private Claim[] GetClaims(User user)
+    {
+        // Implement your logic to retrieve claims from the user
+        // For example, return user roles as claims
+        return new Claim[]
+        {
+                new Claim(ClaimTypes.Name, user.Username),
+            // Add other claims as needed
+        };
+    }
 
 
 

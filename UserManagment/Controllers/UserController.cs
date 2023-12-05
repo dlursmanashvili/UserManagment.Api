@@ -24,6 +24,7 @@ public class UserController : ControllerBase
     }
 
     #region Queries
+    [Authorize]
     [Route("GetAllUsers")]
     [HttpGet]
     public async Task<QueryExecutionResult<GetAllUserQueryResult>> GetAllUsers([FromQuery] GetAllUserQuery query) =>
