@@ -20,6 +20,7 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<UserProfile>> GetAllUserProfilesAsync()
         {
+
             return await _ApplicationDbContext.Set<UserProfile>().ToListAsync();
         }
 
@@ -39,8 +40,8 @@ namespace Infrastructure.Repositories
                 }
                 else
                 {
-                    await Insert(userProfile);
-                    return new CommandExecutionResult() { Success = true};
+                    await Insert<UserProfile, int>(userProfile);
+                    return new CommandExecutionResult() { Success = true };
                 }
             }
             catch (Exception ex)

@@ -1,11 +1,13 @@
 ﻿using Application.Commands.UserCommands;
 using Application.Queries.UserQuery;
 using Application.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared;
 
 namespace UserManagment.Controllers;
 
+//[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class UserController : ControllerBase

@@ -2,16 +2,17 @@
 using Domain.Entities.UserEntity.IRepository;
 using Infrastructure.Db;
 using Microsoft.EntityFrameworkCore;
-using Shared;
-using System.Text;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using Shared;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace Infrastructure.Repositories;
 
 public class UserRepository : BaseRepository, IUserRepository
 {
+    //private readonly byte[] keyBytes = new byte[32]; // 256 bits key
 
     public UserRepository(ApplicationDbContext applicationDbContext, IServiceProvider serviceProvider)
         : base(applicationDbContext, serviceProvider)
@@ -20,7 +21,7 @@ public class UserRepository : BaseRepository, IUserRepository
 
     public async Task<CommandExecutionResult> Registration(User user)
     {
-        if (_ApplicationDbContext.Users.Any(x=> x.Email == user.Email))
+        if (_ApplicationDbContext.Users.Any(x => x.Email == user.Email))
         {
             return new CommandExecutionResult() { Success = false, ErrorMessage = "Choose another email, this email already exists" };
         }
@@ -29,7 +30,7 @@ public class UserRepository : BaseRepository, IUserRepository
             user.Password = HashPassword(user.Password);
             user.IsActive = true;
             var id = await Insert<User, int>(user);
-            var token = GenerateToken(user);
+            //var token = GenerateToken(user);
 
             return new CommandExecutionResult()
             {
@@ -48,16 +49,21 @@ public class UserRepository : BaseRepository, IUserRepository
             };
         }
     }
-    public async Task<CommandExecutionResult> Login( string email , string password)
+    public async Task<CommandExecutionResult> Login(string email, string password)
     {
-        var user =_ApplicationDbContext.Users.FirstOrDefault(x => x.Email == email);
+        var user = _ApplicationDbContext.Users.FirstOrDefault(x => x.Email == email);
         if (user.IsNull())
         {
             return new CommandExecutionResult() { Success = false, ErrorMessage = "user not found" };
         }
-        if (VerifyPassword(password,user.Password))
+        if (VerifyPassword(password, user.Password))
         {
-            return new CommandExecutionResult() { Success = true};
+            //var token = GenerateToken(user);
+            return new CommandExecutionResult()
+            {
+                Success = true,
+                //ErrorMessage = new { Token = token }.ToString()
+            };
         }
         else
         {
@@ -124,21 +130,53 @@ public class UserRepository : BaseRepository, IUserRepository
         string enteredPasswordHashed = HashPassword(enteredPassword);
         return string.Equals(enteredPasswordHashed, hashedPassword, StringComparison.OrdinalIgnoreCase);
     }
-    private string GenerateToken(User user)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes("bc25897AA@123*/%");
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(new Claim[]
-            {
-            new Claim(ClaimTypes.Name, user.Id.ToString()),
-                // Дополнительные утверждения, если необходимо
-            }),
-            Expires = DateTime.UtcNow.AddHours(1), // Время действия токена
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        };
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
-    }
+
+    //private string GenerateToken(User user)
+    //{
+    //    var securityKey = new SymmetricSecurityKey(keyBytes);
+    //    var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+    //    var token = new JwtSecurityToken(
+    //        issuer: "your_issuer",
+    //        audience: "your_audience",
+    //        claims: GetClaims(user),
+    //        notBefore: DateTime.UtcNow,
+    //        expires: DateTime.UtcNow.AddHours(1),
+    //        signingCredentials: signingCredentials
+    //    );
+
+    //    var tokenHandler = new JwtSecurityTokenHandler();
+    //    return tokenHandler.WriteToken(token);
+    //}
+
+    //private Claim[] GetClaims(User user)
+    //{
+    //    // Implement your logic to retrieve claims from the user
+    //    // For example, return user roles as claims
+    //    return new Claim[]
+    //    {
+    //            new Claim(ClaimTypes.Name, user.Username),
+    //        // Add other claims as needed
+    //    };
+    //}
+
+
+
+    //private string GenerateToken(User user)
+    //{
+    //    var tokenHandler = new JwtSecurityTokenHandler();
+    //    var key = Encoding.ASCII.GetBytes("bc25897AA@123*/%");
+    //    var tokenDescriptor = new SecurityTokenDescriptor
+    //    {
+    //        Subject = new ClaimsIdentity(new Claim[]
+    //        {
+    //        new Claim(ClaimTypes.Name, user.Id.ToString()),
+    //            // Дополнительные утверждения, если необходимо
+    //        }),
+    //        Expires = DateTime.UtcNow.AddHours(1), // Время действия токена
+    //        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+    //    };
+    //    var token = tokenHandler.CreateToken(tokenDescriptor);
+    //    return tokenHandler.WriteToken(token);
+    //}
 }
