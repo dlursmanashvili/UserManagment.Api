@@ -10,6 +10,11 @@ namespace Application.Commands.UserCommands
         public string Email { get; set; }
         public override async Task<CommandExecutionResult> ExecuteAsync()
         {
+            if (!PasswordHelper.IsValidEmail(Email))
+            {
+                return await Fail("Invalid email address");
+            }
+
             return await userRepository.Registration(new Domain.Entities.UserEntity.User()
             {
                 Username = Username,
@@ -17,5 +22,7 @@ namespace Application.Commands.UserCommands
                 Email = Email
             });
         }
+
+        
     }
 }

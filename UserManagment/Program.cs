@@ -25,9 +25,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "IssuerTEST",
-        ValidAudience = "AudienceTest",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("N1CJGESHJSXETWXL493")),
+        ValidIssuer = "Issuer",
+        ValidAudience = "Audience",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("B374A26A71490437AA024E4FADD5B497FDFF1A8EA6FF12F6FB65AF2720B59CCF")),
         ClockSkew = TimeSpan.Zero
     };
 });

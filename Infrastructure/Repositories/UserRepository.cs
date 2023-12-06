@@ -26,17 +26,16 @@ public class UserRepository : BaseRepository, IUserRepository
             return new CommandExecutionResult() { Success = false, ErrorMessage = "Choose another email, this email already exists" };
         }
         try
-        {
-            user.Password = HashPassword(user.Password);
+        { 
+            
+            user.Password = PasswordHelper.HashPassword(user.Password);
             user.IsActive = true;
             var id = await Insert<User, int>(user);
-            //var token = GenerateToken(user);
 
             return new CommandExecutionResult()
             {
                 ResultId = id.ToString(),
                 Success = true,
-                //ErrorMessage = new { Token = token }.ToString()
 
             };
         }
@@ -49,27 +48,7 @@ public class UserRepository : BaseRepository, IUserRepository
             };
         }
     }
-    public async Task<CommandExecutionResult> Login(string email, string password)
-    {
-        var user = _ApplicationDbContext.Users.FirstOrDefault(x => x.Email == email);
-        if (user.IsNull())
-        {
-            return new CommandExecutionResult() { Success = false, ErrorMessage = "user not found" };
-        }
-        if (VerifyPassword(password, user.Password))
-        {
-            var token = GenerateToken(user);
-            return new CommandExecutionResult()
-            {
-                Success = true,
-                ErrorMessage =  token.ToString()
-            };
-        }
-        else
-        {
-            return new CommandExecutionResult() { Success = false, ErrorMessage = "Password incorrect" };
-        }
-    }
+
     public async Task<CommandExecutionResult> UpdateAsyncUser(User user)
     {
         var employe = _ApplicationDbContext.Users.FirstOrDefault(x => x.Id == user.Id);
@@ -80,7 +59,7 @@ public class UserRepository : BaseRepository, IUserRepository
         }
         try
         {
-            employe.Password = HashPassword(user.Password);
+            employe.Password = PasswordHelper.HashPassword(user.Password);
             employe.Email = user.Email;
             employe.IsActive = user.IsActive;
             await Update(employe);
@@ -117,63 +96,72 @@ public class UserRepository : BaseRepository, IUserRepository
     {
         return await _ApplicationDbContext.Users.ToListAsync();
     }
-    private string HashPassword(string password)
-    {
-        using (var sha256 = System.Security.Cryptography.SHA256.Create())
-        {
-            byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
-        }
-    }
-    private bool VerifyPassword(string enteredPassword, string hashedPassword)
-    {
-        string enteredPasswordHashed = HashPassword(enteredPassword);
-        return string.Equals(enteredPasswordHashed, hashedPassword, StringComparison.OrdinalIgnoreCase);
-    }
 
-    private string GenerateToken(User user)
-    {
-        if (user == null) throw new ArgumentNullException(nameof(user));
+    //public async Task<CommandExecutionResult> Login(string email, string password)
+    //{
+    //    var user = _ApplicationDbContext.Users.FirstOrDefault(x => x.Email == email);
+    //    if (user.IsNull())
+    //    {
+    //        return new CommandExecutionResult() { Success = false, ErrorMessage = "user not found" };
+    //    }
+    //    if (PasswordHelper.VerifyPassword(password, user.Password))
+    //    {
+    //        //var token = GenerateToken(user);
+    //        return new CommandExecutionResult()
+    //        {
+    //            Success = true,                
+    //        };
+    //    }
+    //    else
+    //    {
+    //        return new CommandExecutionResult() { Success = false, ErrorMessage = "Password incorrect" };
+    //    }
+    //}
 
-        var claims = new Dictionary<string, string>()
-        {
-            { "email_address", user.Email },
-        };
 
-       
 
-        var accessToken = GenerateAccessToken(user.Id, claims);
-        return accessToken;
-    }
 
-    private string GenerateAccessToken(int id, IDictionary<string, string> claims)
-    {      
 
-        var convertedClaims = claims?.Select(x => new Claim(x.Key, x.Value)).ToList() ?? new List<Claim>();
-        convertedClaims.Add(new Claim(JwtRegisteredClaimNames.Sub, id.ToString()));
+    //private string GenerateToken(User user)
+    //{
+    //    if (user == null) throw new ArgumentNullException(nameof(user));
 
-        var accessToken = GenerateJwt(convertedClaims);
-        var tokenResponse = new JwtSecurityTokenHandler().WriteToken(accessToken);
-     
+    //    var claims = new Dictionary<string, string>()
+    //    {
+    //        { "email_address", user.Email },
+    //    };      
 
-        return tokenResponse;
-    }
+    //    var accessToken = GenerateAccessToken(user.Id, claims);
+    //    return accessToken;
+    //}
 
-    private JwtSecurityToken GenerateJwt(IEnumerable<Claim> claims)
-    {
-        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("B374A26A71490437AA024E4FADD5B497FDFF1A8EA6FF12F6FB65AF2720B59CCF"));
-        var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+    //private string GenerateAccessToken(int id, IDictionary<string, string> claims)
+    //{      
+    //    var convertedClaims = claims?.Select(x => new Claim(x.Key, x.Value)).ToList() ?? new List<Claim>();
+    //    convertedClaims.Add(new Claim(JwtRegisteredClaimNames.Sub, id.ToString()));
+    //    convertedClaims.Add(new Claim(ClaimTypes.Name, id.ToString()));
 
-        var jwtSecurityToken = new JwtSecurityToken(
-            issuer: "Issuer",
-            audience: "Audience",
-            claims: claims,
-            notBefore: DateTime.UtcNow,
-            expires: DateTime.UtcNow.AddHours(10),
-            signingCredentials: signingCredentials);
+    //    var accessToken = GenerateJwt(convertedClaims);
+    //    var tokenResponse = new JwtSecurityTokenHandler().WriteToken(accessToken);    
 
-        return jwtSecurityToken;
-    }
+    //    return tokenResponse;
+    //}
+
+    //private JwtSecurityToken GenerateJwt(IEnumerable<Claim> claims)
+    //{
+    //    var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("B374A26A71490437AA024E4FADD5B497FDFF1A8EA6FF12F6FB65AF2720B59CCF"));
+    //    var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+
+    //    var jwtSecurityToken = new JwtSecurityToken(
+    //        issuer: "Issuer",
+    //        audience: "Audience",
+    //        claims: claims,
+    //        notBefore: DateTime.UtcNow,
+    //        expires: DateTime.UtcNow.AddHours(10),
+    //        signingCredentials: signingCredentials);
+
+    //    return jwtSecurityToken;
+    //}
     #region old generate ttoken code
     //private string GenerateToken(User user)
     //{

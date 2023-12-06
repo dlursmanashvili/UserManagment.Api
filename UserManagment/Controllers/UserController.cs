@@ -4,6 +4,7 @@ using Application.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared;
+using static Application.Queries.UserQuery.LoginQuery;
 
 namespace UserManagment.Controllers;
 
@@ -29,11 +30,20 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<QueryExecutionResult<GetAllUserQueryResult>> GetAllUsers([FromQuery] GetAllUserQuery query) =>
          await _queryExecutor.Execute<GetAllUserQuery, GetAllUserQueryResult>(query);
-
+    
+    [Authorize]
     [Route("GetOneUserByID")]
     [HttpGet]
     public async Task<QueryExecutionResult<GetOneUserByIDQueryResult>> GetOneUserByID([FromQuery] GetOneUserByIDQuery query) =>
      await _queryExecutor.Execute<GetOneUserByIDQuery, GetOneUserByIDQueryResult>(query);
+
+
+    [Route("Login")]
+    [HttpGet]
+    public async Task<QueryExecutionResult<LoginQueryResult>> Login([FromQuery] LoginQuery query) =>
+     await _queryExecutor.Execute<LoginQuery, LoginQueryResult>(query);
+
+
     #endregion
 
     #region Commands
@@ -42,17 +52,13 @@ public class UserController : ControllerBase
     public async Task<CommandExecutionResult> Registration([FromBody] RegistrationCommand command) =>
          await _commandExecutor.Execute(command);
 
+    [Authorize]
     [Route("DeleteUser")]
     [HttpDelete]
     public async Task<CommandExecutionResult> DeleteUser([FromBody] UserDeleteCommand command) =>
           await _commandExecutor.Execute(command);
 
-
-    [Route("Login")]
-    [HttpPost]
-    public async Task<CommandExecutionResult> Login([FromBody] LoginCommand command) =>
-          await _commandExecutor.Execute(command);
-
+    [Authorize]
     [Route("UpdateUser")]
     [HttpPost]
     public async Task<CommandExecutionResult> UpdateUser([FromBody] UserUpdateCommand command) =>

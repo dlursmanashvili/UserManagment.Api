@@ -61,7 +61,6 @@ public class GetPlaceholderPostsQuery : Query<List<Post>>
                 }
             }
 
-
             return await Ok(posts);
         }
         catch (Exception ex)

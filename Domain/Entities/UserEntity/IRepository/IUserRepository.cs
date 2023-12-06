@@ -9,6 +9,6 @@ namespace Domain.Entities.UserEntity.IRepository
         Task<CommandExecutionResult> Registration(User user);
         Task<CommandExecutionResult> UpdateAsyncUser(User user);
         Task<CommandExecutionResult> DeleteAsync(int id);
-        Task<CommandExecutionResult> Login(string email, string password);
+        //Task<CommandExecutionResult> Login(string email, string password);
     }
 }

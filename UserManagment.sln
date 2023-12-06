@@ -3,15 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagment", "UserManagment\UserManagment.csproj", "{9DB27F99-5956-497A-B9D4-58588515292E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManagment", "UserManagment\UserManagment.csproj", "{9DB27F99-5956-497A-B9D4-58588515292E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{056514B4-2FA8-4953-8219-5AD0E55537B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{056514B4-2FA8-4953-8219-5AD0E55537B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{6E1EB66F-AB48-4C80-BB7A-7D49E94C9E15}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{6E1EB66F-AB48-4C80-BB7A-7D49E94C9E15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{BD54A494-8BEE-4CBB-83CB-0DC1433D546F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{BD54A494-8BEE-4CBB-83CB-0DC1433D546F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{A77045D4-37B6-4541-ACBE-9BE66BD959CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{A77045D4-37B6-4541-ACBE-9BE66BD959CB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code For SQL", "Code For SQL", "{C0B01A63-04C6-429D-B71F-DCFA7E2CDFD7}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\Tables Crud Procedure.txt = ..\..\Tables Crud Procedure.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
