@@ -62,7 +62,7 @@ public class UserRepository : BaseRepository, IUserRepository
             return new CommandExecutionResult()
             {
                 Success = true,
-                ErrorMessage = new { Token = token }.ToString()
+                ErrorMessage =  token.ToString()
             };
         }
         else
